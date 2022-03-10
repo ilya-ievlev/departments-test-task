@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <bean id="departmentDAOBean"
+          class="com.illiaiievliev.learning.dao.departmentDAO.impl.DepartmentHibernateDAOImpl"
+    >
+    </bean>
+
+    <bean id="employeeJdbcDaoBean"
+          class="com.illiaiievliev.learning.dao.employeeDAO.impl.EmployeeDAOImpl"
+    >
+    </bean>
+
+    <bean id="employeeDAOBean"
+          class="com.illiaiievliev.learning.dao.employeeDAO.impl.EmployeeHibernateDAOImpl">
+        <constructor-arg ref="employeeJdbcDaoBean"/>
+    </bean>
+
+    <bean id="departmentServiceBean"
+          class="com.illiaiievliev.learning.service.department_service.imlp.DepartmentServiceImpl">
+        <constructor-arg ref="departmentDAOBean"/>
+    </bean>
+
+    <bean id="employeeServiceBean"
+          class="com.illiaiievliev.learning.service.employee_service.impl.EmployeeServiceImpl">
+        <constructor-arg ref="employeeDAOBean"/>
+    </bean>
+
+    <bean id="departmentDtoConverterBean"
+          class="com.illiaiievliev.learning.converter.department_converter.DepartmentDtoConverterImpl">
+    </bean>
+
+    <bean id="employeeDtoConverterBean"
+          class="com.illiaiievliev.learning.converter.employee_converter.EmployeeDtoConverterImpl">
+    </bean>
+
+    <bean id="employeeFacadeBean"
+          class="com.illiaiievliev.learning.facade.dto_converter_facade.impl.EmployeeFacadeImpl">
+        <constructor-arg index="0" ref="employeeDtoConverterBean"/>
+        <constructor-arg index="1" ref="employeeServiceBean"/>
+    </bean>
+
+    <bean id="departmentFacadeBean"
+          class="com.illiaiievliev.learning.facade.dto_converter_facade.impl.DepartmentFacadeImpl">
+        <constructor-arg index="0" ref="departmentDtoConverterBean"/>
+        <constructor-arg index="1" ref="departmentServiceBean"/>
+    </bean>
+
+    <bean id="abstractCommandBean"
+          class="com.illiaiievliev.learning.comands.AbstractCommand"
+          abstract="true">
+        <constructor-arg name="departmentService" ref="departmentServiceBean"/>
+        <constructor-arg name="employeeService" ref="employeeServiceBean"/>
+        <constructor-arg name="validator" ref="validatorBean"/>
+        <constructor-arg name="departmentFacade" ref="departmentFacadeBean"/>
+        <constructor-arg name="employeeFacade" ref="employeeFacadeBean"/>
+    </bean>
+
+    <bean id="validatorBean" class="net.sf.oval.Validator">
+    </bean>
+
+    <bean id="employeeEmailIsUniqueCheckBean"
+          class="com.illiaiievliev.learning.validation.employee_validation.EmployeeEmailIsUniqueCheck">
+        <constructor-arg name="employeeService" ref="employeeServiceBean"/>
+    </bean>
+
+    <bean id="employeePositionExistsCheck"
+          class="com.illiaiievliev.learning.validation.employee_validation.EmployeePositionExistsCheck">
+        <constructor-arg name="employeeService" ref="employeeServiceBean"/>
+    </bean>
+
+    <bean id="employeeDepartmentIdExistsCheck"
+          class="com.illiaiievliev.learning.validation.employee_validation.EmployeesDepartmentIdExistsCheck">
+        <constructor-arg name="departmentService" ref="departmentServiceBean"/>
+    </bean>
+
+    <bean id="departmentNameIsUniqueCheck"
+          class="com.illiaiievliev.learning.validation.department_validation.DepartmentNameIsUniqueCheck">
+        <constructor-arg name="departmentService" ref="departmentServiceBean"/>
+    </bean>
+
+    <bean id="deleteDepartmentCommand"
+          class="com.illiaiievliev.learning.comands.impl.department.actions.DeleteDepartmentCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="editDepartmentCommand"
+          class="com.illiaiievliev.learning.comands.impl.department.actions.EditDepartmentCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="getListOfDepartmentsCommand"
+          class="com.illiaiievliev.learning.comands.impl.department.actions.GetListOfDepartmentsCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="saveDepartmentCommand"
+          class="com.illiaiievliev.learning.comands.impl.department.actions.SaveDepartmentCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="gotoAddDepartment"
+          class="com.illiaiievliev.learning.comands.impl.department.go_to_actions.GotoAddDepartment"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="gotoEditDepartmentCommand"
+          class="com.illiaiievliev.learning.comands.impl.department.go_to_actions.GotoEditDepartmentCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="gotoAddEmployeeCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.go_to_actions.GotoAddEmployeeCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="gotoEditEmployeeCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.go_to_actions.GotoEditEmployeeCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="saveEmployeeCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.actions.SaveEmployeeCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="getEmployeesFromDepartmentCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.actions.GetEmployeesFromDepartmentCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="editEmployeeCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.actions.EditEmployeeCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="deleteEmployeeCommand"
+          class="com.illiaiievliev.learning.comands.impl.employee.actions.DeleteEmployeeCommand"
+          parent="abstractCommandBean">
+    </bean>
+
+    <bean id="gotoDefaultErrorAbstractCommand"
+          class="com.illiaiievliev.learning.comands.impl.error_page.GotoDefaultErrorAbstractCommand"
+          parent="abstractCommandBean">
+    </bean>
+</beans>
